@@ -43,7 +43,9 @@
   "license": "MIT",
   "homepage": "https://github.com/SlavyanDesu/NekoBocc#readme",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12"
+    "cheerio": "^1.0.0-rc.12",
+    "https-proxy-agent": "^7.0.6",
+    "socks-proxy-agent": "^8.0.5"
   },
   "repository": {
     "type": "git",

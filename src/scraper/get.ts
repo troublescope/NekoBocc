@@ -1,6 +1,8 @@
 import { load } from 'cheerio';
 import type { EpisodeMetadata, HentaiMetadata, IError } from '../types/interfaces.js';
 import { headersConfig } from '../utils/config.js';
+import { enhancedFetch } from '../utils/fetch.js';
+
 
 /**
  * Get the metadata of a specific hentai episode or page from a valid URL.
@@ -10,7 +12,7 @@ import { headersConfig } from '../utils/config.js';
  */
 export const get = async (url: string): Promise<HentaiMetadata | EpisodeMetadata | IError> => {
 	try {
-		const res = await fetch(url, {
+		const res = await enhancedFetch(url, {
 			method: 'GET',
 			headers: headersConfig.headers,
 		});

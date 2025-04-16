@@ -1,6 +1,9 @@
 import { get, random, release, search } from './scraper/index.js';
 import type { EpisodeMetadata, HentaiMetadata, HentaiRelease, IError } from './types/interfaces.js';
 import { valid } from './utils/config.js';
+import { setupProxySupport } from './utils/fetch.js';
+
+setupProxySupport();
 
 export default class NekoBocc {
 	/**
