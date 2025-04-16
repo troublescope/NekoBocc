@@ -1,6 +1,7 @@
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { headersConfig } from './config.js';
+import type { Agent } from 'node:http';
 
 type ProxyType = 'http' | 'socks4' | 'socks5';
 
@@ -10,9 +11,9 @@ interface ProxyEntry {
     lastUsed?: number;
 }
 
-// Extend RequestInit to include agent
+// Extend RequestInit to include agent with proper typing
 interface ExtendedRequestInit extends RequestInit {
-    agent?: any;  // Using any here because Node's types aren't available in browser TypeScript
+    agent?: Agent;
 }
 
 class ProxyHandler {
@@ -130,10 +131,12 @@ export async function enhancedFetch(url: string, options: ExtendedRequestInit = 
                 return globalThis.fetch(url, mergedOptions);
             }
 
-            const response = await globalThis.fetch(url, {
+            const proxyOptions: ExtendedRequestInit = {
                 ...mergedOptions,
                 agent: handler.getProxyAgent(proxy)
-            } as RequestInit);
+            };
+
+            const response = await globalThis.fetch(url, proxyOptions);
 
             if (response.ok) {
                 return response;
@@ -142,7 +145,11 @@ export async function enhancedFetch(url: string, options: ExtendedRequestInit = 
             console.warn(`[${new Date().toISOString()}] Proxy request failed with status ${response.status}, retrying...`);
             retries--;
         } catch (error) {
-            console.error(`[${new Date().toISOString()}] Proxy request error:`, error);
+            if (error instanceof Error) {
+                console.error(`[${new Date().toISOString()}] Proxy request error:`, error.message);
+            } else {
+                console.error(`[${new Date().toISOString()}] Proxy request error: Unknown error`);
+            }
             retries--;
         }
     }
@@ -152,7 +159,11 @@ export async function enhancedFetch(url: string, options: ExtendedRequestInit = 
 }
 
 export function setupProxySupport(): void {
-    handler.updateProxies().catch(error => {
-        console.error(`[${new Date().toISOString()}] Failed to initialize proxy support:`, error);
+    void handler.updateProxies().catch(error => {
+        if (error instanceof Error) {
+            console.error(`[${new Date().toISOString()}] Failed to initialize proxy support:`, error.message);
+        } else {
+            console.error(`[${new Date().toISOString()}] Failed to initialize proxy support: Unknown error`);
+        }
     });
 }
